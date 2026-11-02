@@ -49,6 +49,7 @@ table{min-width:920px}
 .criteria-table th,.criteria-table td{padding:6px 8px;font-size:11px;vertical-align:top;border-top:1px solid #e9eff1;white-space:normal;overflow-wrap:anywhere}
 .criteria-table thead th{border-top:0;background:#edf5f4;color:#466775}.criteria-table tbody th{font-weight:700;color:#415b6b;width:58%}.criteria-table tbody td{font-weight:800;color:#1a4450}
 .criteria-table .ocr-uncertain{color:#8a5418}.ocr-uncertain sup{margin-left:2px;font-size:9px}
+.standard-passes h4,.standard-passes .criteria-table th,.standard-passes .criteria-table td,.standard-passes .criteria-table .ocr-uncertain{color:#b42318}
 .standard-extra{display:flex;gap:15px;align-items:baseline;margin-top:13px;padding:10px 12px;border-radius:6px;background:#f4f8f8;font-size:12px}.standard-extra strong{color:#4b6673}.standard-extra span{font-weight:800}
 .standard-error{padding:20px;border-radius:8px;background:#fff4ed;color:#85512b;font-size:13px}
 .standards-dialog-foot{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px 28px 20px;border-top:1px solid #e8eef0}

@@ -52,15 +52,15 @@
     return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-code">${p.code}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
-  function criteriaTable(title, labels, cells) {
-    return `<section class="standard-section"><h4>${title}</h4><table class="criteria-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">${title === '檢定標準' ? '標準' : '數值'}</th></tr></thead><tbody>${labels.map((label, index) => { const cell = cells[index] || { text: '—', confidence: 1 }; const uncertain = cell.confidence < .7 && cell.text !== '—'; return `<tr><th scope="row">${escapeHtml(label)}</th><td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(cell.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td></tr>`; }).join('')}</tbody></table></section>`;
+  function criteriaTable(title, labels, cells, className = '') {
+    return `<section class="standard-section ${className}"><h4>${title}</h4><table class="criteria-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">${title === '檢定標準' ? '標準' : '數值'}</th></tr></thead><tbody>${labels.map((label, index) => { const cell = cells[index] || { text: '—', confidence: 1 }; const uncertain = cell.confidence < .7 && cell.text !== '—'; return `<tr><th scope="row">${escapeHtml(label)}</th><td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(cell.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td></tr>`; }).join('')}</tbody></table></section>`;
   }
 
   function ensureStandards() {
     if (window.STANDARDS_115) return Promise.resolve();
     if (!standardsPromise) standardsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/standards.js?v=20261030b';
+      script.src = 'data/standards.js?v=20261102b';
       script.onload = () => {
         standardData = window.STANDARDS_115 || { layouts: {}, programs: {} };
         standards = standardData.programs || {};
@@ -88,7 +88,7 @@
     $('standards-content').innerHTML = rows.map((row, index) => {
       const labels = standardData.layouts[row.layout];
       const details = labels.identity.slice(1).map((label, i) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(row.identity[i + 1].text)}</dd></div>`).join('');
-      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${criteriaTable('檢定標準', labels.checks, row.checks)}${criteriaTable('篩選倍率', labels.ratios, row.ratios)}${criteriaTable('通過最低級分（分數）', labels.passes, row.passes)}</div><div class="standard-extra"><strong>同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
+      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${criteriaTable('檢定標準', labels.checks, row.checks)}${criteriaTable('篩選倍率', labels.ratios, row.ratios)}${criteriaTable('通過最低級分（分數）', labels.passes, row.passes, 'standard-passes')}</div><div class="standard-extra"><strong>同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
     }).join('');
     $('standards-source').href = `${standardSourceBase}${program.schoolCode}.htm`;
     showStandardsDialog();
