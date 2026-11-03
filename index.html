@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="比較 116 與 115 學年度大學申請入學校系學測科目參採情形。">
   <title>116／115 申請入學參採科目比較</title>
-  <link rel="stylesheet" href="styles.css?v=20261102a">
+  <link rel="stylesheet" href="styles.css?v=20261103b">
   <script src="data/programs.js" defer></script>
-  <script src="app.js?v=20261102b" defer></script>
+  <script src="app.js?v=20261103b" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -68,14 +68,14 @@
       <div class="insight-grid"><article class="chart-card"><div class="card-head"><div><h3>116 各科目參採校系數</h3><p>一個校系可能同時參採多科，長條數值不能相加。</p></div><span class="card-symbol">01</span></div><div id="subject-chart" class="bar-chart"></div></article><article class="chart-card"><div class="card-head"><div><h3>116 參採科目數分布</h3><p>每個校系計入一個科目數區間。</p></div><span class="card-symbol">02</span></div><div id="count-chart" class="bar-chart count-chart"></div></article></div>
     </section>
 
-    <section class="about wrap" id="about"><div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div><div class="about-copy"><p>資料來自大學甄選入學委員會的 116 與 115 學年度「申請入學」招生校系參採學測科目一覽表。本站以 116 年 2,240 筆校系為主，依學校代碼與正規化後的校系名稱尋找 115 年同名紀錄。校系代碼在兩年間可能改變，因此不以六碼校系代碼單獨配對。</p><p>「115 無同名紀錄」表示無法可靠配對，不能直接解讀為新設校系；更名或改組也可能造成此情況。變動標示僅比較兩年參採科目集合。「參採」包含檢定、倍率篩選及採計，本站不區分具體用途。數學 A 與數學 B 分別計數。115 年篩選標準由官方原表圖片辨識轉錄成文字表格，列出檢定、倍率及實際通過最低級分；同一校系如有多列會全部顯示。辨識結果如有疑義，請以連結中的官方原表為準。116 原始 PDF 可從表格開啟；正式招生條件仍以官方簡章為準。</p><div class="source-links"><a href="https://www.cac.edu.tw/apply116/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">116 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/apply115/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">115 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/collegeList.htm" target="_blank" rel="noopener noreferrer">115 篩選標準原頁 ↗</a><a href="data/programs.csv" download>下載比較資料 CSV ↓</a></div></div></section>
+    <section class="about wrap" id="about"><div><span class="kicker">SOURCE & METHOD</span><h2>資料與計算方式</h2></div><div class="about-copy"><p>資料來自大學甄選入學委員會的 116 與 115 學年度「申請入學」招生校系參採學測科目一覽表。本站以 116 年 2,240 筆校系為主，依學校代碼與正規化後的校系名稱尋找 115 年同名紀錄。校系代碼在兩年間可能改變，因此不以六碼校系代碼單獨配對。</p><p>「115 無同名紀錄」表示無法可靠配對，不能直接解讀為新設校系；更名或改組也可能造成此情況。變動標示僅比較兩年參採科目集合。「參採」包含檢定、倍率篩選及採計，本站不區分具體用途。數學 A 與數學 B 分別計數。115 年篩選標準由官方原表圖片辨識轉錄成文字表格，列出檢定、倍率及實際通過最低級分；APCS 校系的檢定及倍率須查看官方原表。同一校系如有多列會全部顯示。辨識結果如有疑義，請以連結中的官方原表為準。116 原始 PDF 可從表格開啟；正式招生條件仍以官方簡章為準。</p><div class="source-links"><a href="https://www.cac.edu.tw/apply116/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">116 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/apply115/Classification_BriefForm.php" target="_blank" rel="noopener noreferrer">115 官方一覽表 ↗</a><a href="https://www.cac.edu.tw/CacLink/apply115/115Apply_sievE_Result_querY_615JG8Wgh9d/html_sieve_result_115_Zx57f1dW/Standard/collegeList.htm" target="_blank" rel="noopener noreferrer">115 篩選標準原頁 ↗</a><a href="data/programs.csv" download>下載比較資料 CSV ↓</a></div></div></section>
   </main>
   <dialog id="standards-dialog" class="standards-dialog" aria-labelledby="standards-title">
     <div class="standards-dialog-head"><div><span class="kicker">115 SCREENING STANDARD</span><h2 id="standards-title"></h2><p id="standards-description"></p></div><button id="standards-close" class="standards-close" type="button" aria-label="關閉篩選標準">×</button></div>
-    <p class="standards-help">以下依官方原表轉錄，列出檢定標準、篩選倍率與通過倍率篩選最低級分（分數）。文字由圖片辨識整理；若有疑義，請核對下方官方原表。</p>
+    <p class="standards-help">以下依官方原表轉錄，列出檢定標準、篩選倍率與通過倍率篩選最低級分（分數）。APCS 校系的檢定及倍率請直接核對官方原表；其他文字如有疑義，也請以官方原表為準。</p>
     <div id="standards-content"></div>
     <div class="standards-dialog-foot"><a id="standards-source" target="_blank" rel="noopener noreferrer">開啟完整官方原表 ↗</a><button id="standards-done" class="outline-button" type="button">關閉</button></div>
   </dialog>
-  <footer><div class="wrap footer-inner"><span>116 申請入學資料觀察室</span><span>資料來源：大學甄選入學委員會 · 資料核對 2026.11.02</span></div></footer>
+  <footer><div class="wrap footer-inner"><span>116 申請入學資料觀察室</span><span>資料來源：大學甄選入學委員會 · 資料核對 2026.11.03</span></div></footer>
 </body>
 </html>

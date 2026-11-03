@@ -45,11 +45,12 @@
 
   function rowHtml(p) {
     const current = subjectTags(p.subjects, p.added, 'added');
-    const previous = p.previous ? `<div class="tags">${subjectTags(p.previous.subjects, p.removed, 'removed')}</div>${p.previous.code !== p.code ? `<span class="previous-code">115 代碼 ${p.previous.code}</span>` : ''}` : '<span class="unmatched">無同名紀錄</span>';
+    const previous = p.previous ? `<div class="tags">${subjectTags(p.previous.subjects, p.removed, 'removed')}</div>` : '<span class="unmatched">無同名紀錄</span>';
+    const previousCode = p.previous && p.previous.code !== p.code ? `<span class="previous-code">115 代碼 ${p.previous.code}</span>` : '';
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const hasStandards = Boolean(p.previous);
     const standardButton = `<button class="standard-button" type="button" data-program-code="${p.code}" ${hasStandards ? '' : 'disabled title="沒有可對應的 115 年篩選標準"'}>115 篩選標準</button>`;
-    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-code">${p.code}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
+    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-codes"><span class="program-code">${p.code}</span>${previousCode}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
   function criteriaTable(title, labels, cells, className = '') {
@@ -60,7 +61,7 @@
     if (window.STANDARDS_115) return Promise.resolve();
     if (!standardsPromise) standardsPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'data/standards.js?v=20261102b';
+      script.src = 'data/standards.js?v=20261103b';
       script.onload = () => {
         standardData = window.STANDARDS_115 || { layouts: {}, programs: {} };
         standards = standardData.programs || {};
@@ -88,7 +89,10 @@
     $('standards-content').innerHTML = rows.map((row, index) => {
       const labels = standardData.layouts[row.layout];
       const details = labels.identity.slice(1).map((label, i) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(row.identity[i + 1].text)}</dd></div>`).join('');
-      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${criteriaTable('檢定標準', labels.checks, row.checks)}${criteriaTable('篩選倍率', labels.ratios, row.ratios)}${criteriaTable('通過最低級分（分數）', labels.passes, row.passes, 'standard-passes')}</div><div class="standard-extra"><strong>同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
+      const checksAndRatios = row.layout === '一般:18'
+        ? '<section class="standard-section standard-apcs-note"><h4>APCS 檢定標準與篩選倍率</h4><p>官方原表採雙層欄位，請使用下方連結核對這兩項資料。</p></section>'
+        : `${criteriaTable('檢定標準', labels.checks, row.checks)}${criteriaTable('篩選倍率', labels.ratios, row.ratios)}`;
+      return `<article class="standard-record">${rows.length > 1 ? `<h3>原表第 ${index + 1} 列</h3>` : ''}<dl class="standard-details">${details}</dl><div class="standard-grid">${checksAndRatios}${criteriaTable('通過最低級分（分數）', labels.passes, row.passes, 'standard-passes')}</div><div class="standard-extra"><strong>同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div></article>`;
     }).join('');
     $('standards-source').href = `${standardSourceBase}${program.schoolCode}.htm`;
     showStandardsDialog();
