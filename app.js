@@ -118,7 +118,7 @@
       const oldChecks = row ? row.layout === '一般:18' ? previousApcsNote('115 檢定標準') : criteriaTable('115 檢定標準', labels.checks, row.checks) : '';
       const oldRatios = row ? row.layout === '一般:18' ? previousApcsNote('115 篩選倍率') : criteriaTable('115 篩選倍率', labels.ratios, row.ratios) : '';
       const passes = row ? criteriaTable('115 通過最低級分（分數）', labels.passes, row.passes, 'standard-passes') : '';
-      const grid = `${oldChecks}${currentCriteriaTable('116 檢定標準', current.checks)}${oldRatios}${currentCriteriaTable('116 篩選倍率', current.ratios, current.combination)}${passes}`;
+      const grid = `${currentCriteriaTable('116 檢定標準', current.checks)}${oldChecks}${currentCriteriaTable('116 篩選倍率', current.ratios, current.combination)}${oldRatios}${passes}`;
       const extra = row ? `<div class="standard-extra"><strong>115 同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div>` : '';
       return `<article class="standard-record">${rows.length > 1 ? `<h3>115 原表第 ${index + 1} 列</h3>` : ''}${details}<div class="standard-grid${row ? '' : ' current-only'}">${grid}</div>${extra}</article>`;
     }).join('');
