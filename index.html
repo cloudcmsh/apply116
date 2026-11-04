@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="比較 116 與 115 學年度大學申請入學校系學測科目參採情形。">
   <title>116／115 申請入學參採科目比較</title>
-  <link rel="stylesheet" href="styles.css?v=20261104b">
+  <link rel="stylesheet" href="styles.css?v=20261104d">
   <script src="data/programs.js?v=20261103c" defer></script>
   <script src="data/telc_116.js?v=20261104a" defer></script>
-  <script src="app.js?v=20261104c" defer></script>
+  <script src="app.js?v=20261104d" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -84,6 +84,12 @@
     <p class="standards-help">115、116 年檢定標準與篩選倍率並列，116 年資料依官方校系分則整理；115 年最低通過分數依官方篩選標準原表整理。115 年 APCS 檢定及倍率請直接核對原表。</p>
     <div id="standards-content"></div>
     <div class="standards-dialog-foot"><div class="standard-source-links"><a id="standards-source" target="_blank" rel="noopener noreferrer">115 篩選標準原表 ↗</a><a id="school-detail-source-116" target="_blank" rel="noopener noreferrer">116 校系分則 ↗</a></div><button id="standards-done" class="outline-button" type="button">關閉</button></div>
+  </dialog>
+  <dialog id="resource-dialog" class="resource-dialog" aria-labelledby="resource-title">
+    <div class="resource-dialog-head"><div><h2 id="resource-title"></h2><p id="resource-description"></p></div><button id="resource-close" type="button" aria-label="關閉檢視視窗並返回網站">關閉 ×</button></div>
+    <p id="resource-help" class="resource-help" hidden>若官方網站限制站內顯示，請使用下方的「在新分頁開啟官方頁面」。</p>
+    <iframe id="resource-frame" title="資料檢視視窗"></iframe>
+    <div class="resource-dialog-foot"><a id="resource-open" data-direct-open target="_blank" rel="noopener noreferrer">在新分頁開啟 ↗</a><button id="resource-done" type="button">關閉並返回網站</button></div>
   </dialog>
   <footer><div class="wrap footer-inner"><span>116 申請入學資料觀察室</span><span>資料來源：大學甄選入學委員會 · 資料核對 2026.11.04</span></div></footer>
 </body>

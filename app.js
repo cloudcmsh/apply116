@@ -57,7 +57,7 @@
     const previousCode = p.previous && p.previous.code !== p.code ? `<span class="previous-code">115 代碼 ${p.previous.code}</span>` : '';
     const change = p.change === 'changed' ? '<span class="change-pill changed">科目有變動</span>' : p.change === 'unmatched' ? '<span class="change-pill unmatched-pill">待核對</span>' : '';
     const standardButton = `<button class="standard-button" type="button" data-program-code="${p.code}">115／116 篩選標準</button>`;
-    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-codes"><span class="program-code">${p.code}</span>${previousCode}</span><span class="program-group">學群：${escapeHtml(p.academicGroups.join('／'))}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
+    return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-codes"><span class="program-code">${p.code}</span>${previousCode}</span><span class="program-group">學群：${escapeHtml(p.academicGroups.join('／'))}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" data-pdf-program-code="${p.code}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
   function criteriaTable(title, labels, cells, className = '') {
@@ -137,6 +137,33 @@
     else { dialog.removeAttribute('open'); document.body.classList.remove('dialog-open'); }
   }
 
+  let resourceReturnFocus;
+  function openResource(link) {
+    const dialog = $('resource-dialog');
+    if (dialog.open) return;
+    const program = link.dataset.pdfProgramCode ? programByCode.get(link.dataset.pdfProgramCode) : null;
+    const title = program ? `${program.school} ${program.name} 116 原始 PDF` : link.textContent.replace(/[↗↓]/g, '').trim();
+    resourceReturnFocus = link;
+    $('resource-title').textContent = title;
+    $('resource-description').textContent = program ? `第 ${program.page} 頁` : new URL(link.href).hostname;
+    $('resource-help').hidden = Boolean(program);
+    $('resource-frame').title = title;
+    $('resource-open').href = link.href;
+    $('resource-open').textContent = program ? '在新分頁開啟 PDF ↗' : '在新分頁開啟官方頁面 ↗';
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else { dialog.setAttribute('open', ''); document.body.classList.add('dialog-open'); }
+    $('resource-frame').src = link.href;
+  }
+
+  function closeResource() {
+    const dialog = $('resource-dialog');
+    if (typeof dialog.close === 'function' && dialog.open) dialog.close();
+    else dialog.removeAttribute('open');
+    $('resource-frame').removeAttribute('src');
+    if (!$('standards-dialog').open) document.body.classList.remove('dialog-open');
+    if (resourceReturnFocus && resourceReturnFocus.isConnected) resourceReturnFocus.focus();
+  }
+
   function renderChart(id, labels, counts) {
     const maximum = Math.max(...counts, 1);
     $(id).innerHTML = labels.map((label, index) => `<div class="bar-row"><span class="bar-label">${label}</span><span class="bar-track"><span class="bar-fill" style="display:block;width:${Math.round(counts[index] / maximum * 100)}%"></span></span><span class="bar-value">${format(counts[index])}</span></div>`).join('');
@@ -196,6 +223,16 @@
   });
   $('standards-close').addEventListener('click', closeStandards);
   $('standards-done').addEventListener('click', closeStandards);
+  document.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[target="_blank"]');
+    if (!link || link.hasAttribute('data-direct-open')) return;
+    event.preventDefault();
+    openResource(link);
+  });
+  $('resource-close').addEventListener('click', closeResource);
+  $('resource-done').addEventListener('click', closeResource);
+  $('resource-dialog').addEventListener('cancel', event => { event.preventDefault(); closeResource(); });
   $('reset-filters').addEventListener('click', () => {
     Object.assign(state, { query: '', school: '', region: '', academicGroup: '', category: '', comparison: '', selected: new Set(), mode: 'all', noSubject: false, englishListening: false, sort: 'code', limit: 50 });
     $('search').value = ''; $('school').value = ''; $('region').value = ''; $('academic-group').value = ''; $('category').value = ''; $('comparison').value = ''; $('sort').value = 'code'; $('no-subject').checked = false;
