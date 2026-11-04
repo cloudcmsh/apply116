@@ -203,13 +203,5 @@
     $('subject-options').querySelectorAll('input').forEach(input => { input.checked = false; });
     render();
   });
-  $('export-csv').addEventListener('click', () => {
-    const rows = filtered();
-    const values = [['116校系代碼', '116校系名稱', '學校代碼', '學校名稱', '學校所在區域', '類別', '116官方學群', '116參採科目', '115校系代碼', '115參採科目', '比較結果', '116新增科目', '116移除科目', '116 PDF網址'], ...rows.map(p => [p.code, p.name, p.schoolCode, p.school, data.regions.find(region => region.code === p.regionCode)?.name || '', p.category, p.academicGroups.join('、'), p.subjects.join('、') || '不參採', p.previous ? p.previous.code : '', p.previous ? p.previous.subjects.join('、') || '不參採' : '無同名紀錄', p.change, p.added.join('、'), p.removed.join('、'), `https://www.cac.edu.tw/apply116/Classification_readfile.php?fileid=${p.schoolCode}`])];
-    const csv = '\ufeff' + values.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\r\n');
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = `116_115申請入學參採科目比較_${rows.length}筆.csv`; link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  });
   render();
 })();
