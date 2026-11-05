@@ -60,18 +60,36 @@
     return `<tr><td data-label="116 校系"><span class="program-name">${escapeHtml(p.name)}</span><span class="program-codes"><span class="program-code">${p.code}</span>${previousCode}</span><span class="program-group">學群：${escapeHtml(p.academicGroups.join('／'))}</span>${change}${standardButton}</td><td data-label="學校"><span class="school-name">${escapeHtml(p.school)}</span></td><td data-label="類別"><span class="category">${p.category}</span></td><td data-label="116 參採科目"><div class="tags">${current}</div></td><td data-label="115 參採科目">${previous}</td><td data-label="原始資料"><a class="pdf-link" href="data/${p.schoolCode}.pdf#page=${p.page}" data-pdf-program-code="${p.code}" target="_blank" rel="noopener noreferrer" aria-label="查看${escapeHtml(p.school)}${escapeHtml(p.name)}的 116 原始 PDF，第 ${p.page} 頁">116 PDF ↗</a></td></tr>`;
   }
 
+  function oldCellHtml(cell) {
+    const value = cell || { text: '—', confidence: 1 };
+    const uncertain = value.confidence < .7 && value.text !== '—' && value.text !== '請查官方原表';
+    return `<td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(value.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td>`;
+  }
+
   function criteriaTable(title, labels, cells, className = '') {
-    return `<section class="standard-section ${className}"><h4>${title}</h4><table class="criteria-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">${title.includes('檢定標準') ? '標準' : '數值'}</th></tr></thead><tbody>${labels.map((label, index) => { const cell = cells[index] || { text: '—', confidence: 1 }; const uncertain = cell.confidence < .7 && cell.text !== '—'; return `<tr><th scope="row">${escapeHtml(label)}</th><td${uncertain ? ' class="ocr-uncertain" title="圖片辨識結果待核對，請查看官方原表"' : ''}>${escapeHtml(cell.text)}${uncertain ? '<sup aria-label="待核對">?</sup>' : ''}</td></tr>`; }).join('')}</tbody></table></section>`;
+    return `<section class="standard-section ${className}"><h4>${title}</h4><table class="criteria-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">數值</th></tr></thead><tbody>${labels.map((label, index) => `<tr><th scope="row">${escapeHtml(label)}</th>${oldCellHtml(cells[index])}</tr>`).join('')}</tbody></table></section>`;
   }
 
-  function currentCriteriaTable(title, values, combination = '') {
-    const rows = Object.entries(values).map(([label, value]) => `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`).join('');
+  function currentValueForLabel(label, values) {
+    if (Object.hasOwn(values, label)) return { text: values[label], keys: [label] };
+    const [subject, item] = label.split('／');
+    if (!item) return { text: '—', keys: [] };
+    const secondKey = item === '英聽' ? '英聽' : item === '體育百分等級' ? '體育／百分等級' : `術科／${item}`;
+    if (!Object.hasOwn(values, subject) && !Object.hasOwn(values, secondKey)) return { text: '—', keys: [] };
+    return { text: `${values[subject] ?? '—'}／${values[secondKey] ?? '—'}`, keys: [subject, secondKey] };
+  }
+
+  function comparisonTable(title, currentValues, oldLabels, oldCells, combination = '', apcs = false) {
+    const used = new Set();
+    const primary = apcs ? Object.keys(currentValues).map(label => ({ label, current: currentValues[label], old: { text: '請查官方原表', confidence: 1 } })) : (oldLabels || Object.keys(currentValues)).map((label, index) => {
+      const value = currentValueForLabel(label, currentValues);
+      value.keys.forEach(key => used.add(key));
+      return { label, current: value.text, old: oldCells?.[index] };
+    });
+    const extra = apcs ? [] : Object.entries(currentValues).filter(([key]) => !used.has(key)).map(([label, current]) => ({ label, current, old: { text: '原表未列', confidence: 1 } }));
+    const rows = [...primary, ...extra].map(({ label, current, old }) => `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(current)}</td>${oldCellHtml(old)}</tr>`).join('');
     const note = combination ? `<p class="standard-combination">學測科目組合：${escapeHtml(combination)}</p>` : '';
-    return `<section class="standard-section standard-current"><h4>${title}</h4><table class="criteria-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">${title.includes('檢定標準') ? '標準' : '數值'}</th></tr></thead><tbody>${rows}</tbody></table>${note}</section>`;
-  }
-
-  function previousApcsNote(title) {
-    return `<section class="standard-section standard-apcs-note"><h4>${title}</h4><p>115 年 APCS 原表採雙層欄位，請開啟下方官方原表核對。</p></section>`;
+    return `<section class="standard-section standard-comparison"><h4>${title}</h4><table class="criteria-table comparison-table"><thead><tr><th scope="col">科目／項目</th><th scope="col">116 年</th><th scope="col">115 年</th></tr></thead><tbody>${rows}</tbody></table>${note}</section>`;
   }
 
   function ensureSchoolDetails116() {
@@ -115,12 +133,13 @@
     $('standards-content').innerHTML = (rows.length ? rows : [null]).map((row, index) => {
       const labels = row ? standardData.layouts[row.layout] : null;
       const details = row ? `<dl class="standard-details">${labels.identity.slice(1).map((label, i) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(row.identity[i + 1].text)}</dd></div>`).join('')}</dl>` : '<p class="standard-error">115 無同校同名篩選標準，以下顯示 116 年資料。</p>';
-      const oldChecks = row ? row.layout === '一般:18' ? previousApcsNote('115 檢定標準') : criteriaTable('115 檢定標準', labels.checks, row.checks) : '';
-      const oldRatios = row ? row.layout === '一般:18' ? previousApcsNote('115 篩選倍率') : criteriaTable('115 篩選倍率', labels.ratios, row.ratios) : '';
       const passes = row ? criteriaTable('115 通過最低級分（分數）', labels.passes, row.passes, 'standard-passes') : '';
-      const grid = `${currentCriteriaTable('116 檢定標準', current.checks)}${oldChecks}${currentCriteriaTable('116 篩選倍率', current.ratios, current.combination)}${oldRatios}${passes}`;
+      const apcs = row?.layout === '一般:18';
+      const checks = comparisonTable('檢定標準', current.checks, apcs ? null : labels?.checks, apcs ? null : row?.checks, '', apcs);
+      const ratios = comparisonTable('篩選倍率', current.ratios, apcs ? null : labels?.ratios, apcs ? null : row?.ratios, current.combination, apcs);
+      const firstStage = `<div class="standard-first-stage"><h3>第一階段</h3>${checks}${ratios}${apcs ? '<p class="standard-apcs-note">115 年 APCS 原表採雙層欄位，請開啟下方官方原表核對。</p>' : ''}</div>`;
       const extra = row ? `<div class="standard-extra"><strong>115 同級分超額篩選</strong><span>${escapeHtml(row.extra.text)}</span></div>` : '';
-      return `<article class="standard-record">${rows.length > 1 ? `<h3>115 原表第 ${index + 1} 列</h3>` : ''}${details}<div class="standard-grid${row ? '' : ' current-only'}">${grid}</div>${extra}</article>`;
+      return `<article class="standard-record">${rows.length > 1 ? `<h3 class="standard-record-title">115 原表第 ${index + 1} 列</h3>` : ''}${firstStage}${details}${passes}${extra}</article>`;
     }).join('');
     showStandardsDialog();
   }
